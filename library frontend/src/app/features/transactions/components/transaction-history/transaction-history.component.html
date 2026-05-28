@@ -1,0 +1,103 @@
+<div class="page-header">
+  <h4><i class="bi bi-clock-history me-2 text-primary"></i>Transaction History</h4>
+  <div class="d-flex gap-2">
+    <a routerLink="/transactions/issue" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-box-arrow-up-right me-1"></i>Issue
+    </a>
+    <a routerLink="/transactions/return" class="btn btn-outline-success btn-sm">
+      <i class="bi bi-box-arrow-in-left me-1"></i>Return
+    </a>
+  </div>
+</div>
+
+<app-alert [message]="errorMsg" type="danger" (dismiss)="errorMsg=null"></app-alert>
+
+<div class="card mb-4">
+  <div class="card-header">Search Filters</div>
+  <div class="card-body">
+    <div class="row g-3 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label">Filter by Member</label>
+        <select class="form-select" [(ngModel)]="filterMemberId" (ngModelChange)="filterBookId=null">
+          <option [ngValue]="null">-- All Members --</option>
+          <option *ngFor="let m of members" [ngValue]="m.id">{{ m.name }}</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Filter by Book</label>
+        <select class="form-select" [(ngModel)]="filterBookId" (ngModelChange)="filterMemberId=null">
+          <option [ngValue]="null">-- All Books --</option>
+          <option *ngFor="let b of books" [ngValue]="b.id">{{ b.title }}</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Status</label>
+        <select class="form-select" [(ngModel)]="filterStatus" (ngModelChange)="applyStatusFilter()">
+          <option value="">All</option>
+          <option value="ISSUED">Issued</option>
+          <option value="RETURNED">Returned</option>
+          <option value="OVERDUE">Overdue</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button class="btn btn-primary w-100" (click)="search()" [disabled]="loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+          <i *ngIf="!loading" class="bi bi-search me-1"></i>Search
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    Results
+    <span class="badge bg-secondary ms-1">{{ filtered.length }}</span>
+  </div>
+  <div class="card-body p-0">
+    <app-spinner *ngIf="loading"></app-spinner>
+    <div *ngIf="!loading && transactions.length === 0 && !errorMsg" class="empty-state">
+      <i class="bi bi-filter-circle"></i>
+      <p class="mb-0">Use the filters above to search transaction history.</p>
+    </div>
+    <div *ngIf="!loading && transactions.length > 0 && filtered.length === 0" class="empty-state">
+      <i class="bi bi-search"></i>
+      <p class="mb-0">No transactions match the selected status filter.</p>
+    </div>
+    <div class="table-responsive" *ngIf="!loading && filtered.length > 0">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Book</th>
+            <th>Member</th>
+            <th>Issued At</th>
+            <th>Due Date</th>
+            <th>Returned At</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of filtered; let i = index" [ngClass]="{'table-danger': t.status === 'OVERDUE'}">
+            <td class="text-muted small">{{ t.id }}</td>
+            <td class="fw-semibold">
+              <a [routerLink]="['/books', t.bookId]" class="text-decoration-none">{{ t.bookTitle }}</a>
+              <div class="text-muted small"><code>{{ t.bookIsbn }}</code></div>
+            </td>
+            <td>
+              <a [routerLink]="['/members', t.memberId]" class="text-decoration-none">{{ t.memberName }}</a>
+              <div class="text-muted small">{{ t.memberEmail }}</div>
+            </td>
+            <td>{{ t.issuedAt | date:'mediumDate' }}</td>
+            <td [ngClass]="{'text-danger fw-semibold': isOverdue(t)}">
+              {{ t.dueDate | date:'mediumDate' }}
+              <i *ngIf="isOverdue(t)" class="bi bi-exclamation-triangle ms-1"></i>
+            </td>
+            <td>{{ t.returnedAt ? (t.returnedAt | date:'mediumDate') : '—' }}</td>
+            <td><span class="badge" [ngClass]="statusClass(t.status)">{{ t.status }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

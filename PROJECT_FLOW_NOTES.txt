@@ -1,0 +1,102 @@
+Library Management System - Flow Notes
+
+This project has two parts:
+
+1. Backend
+   The backend is made using Spring Boot. It handles login, books, members and transactions.
+   The API starts from /api.
+
+2. Frontend
+   The frontend is made using Angular. It calls backend APIs and shows pages for admin,
+   librarian and user.
+
+
+Login Flow
+
+1. User enters username and password in the login page.
+2. Angular sends the details to:
+   POST /api/auth/login
+3. Backend checks the username and password using Spring Security.
+4. If login is correct, backend returns a JWT token with username and role.
+5. Frontend stores the token and redirects user based on role.
+
+Admin goes to admin dashboard.
+Librarian goes to librarian dashboard.
+Normal user goes to user dashboard.
+
+
+Default Admin
+
+Default admin login is:
+
+username: admin
+password: admin123
+
+The password is saved in database as BCrypt hash, not plain text.
+
+
+Member Status Flow
+
+Members can have two statuses:
+
+ACTIVE
+INACTIVE
+
+When a member is active, admin or librarian can deactivate the member.
+When a member is inactive, admin or librarian can activate the member again.
+
+Deactivate member flow:
+
+1. Click deactivate button in members list.
+2. Confirmation popup is shown.
+3. If confirmed, frontend calls:
+   PATCH /api/members/{id}/deactivate
+4. Backend changes member status to INACTIVE.
+5. Members list is refreshed.
+
+Activate member flow:
+
+1. If member is inactive, activate button is shown.
+2. Click activate button.
+3. Frontend calls:
+   PATCH /api/members/{id}/activate
+4. Backend changes member status to ACTIVE.
+5. Members list is refreshed.
+
+
+Book Issue Flow
+
+1. Librarian or admin selects a book and an active member.
+2. Frontend calls issue book API.
+3. Backend checks if book copies are available.
+4. Backend checks if member is active.
+5. If all checks pass, transaction is created and available book count is reduced.
+
+
+Book Return Flow
+
+1. Librarian or admin selects member and active issue.
+2. Frontend calls return book API.
+3. Backend marks transaction as returned.
+4. Available book count is increased.
+
+
+Frontend Changes
+
+The frontend class names and CSS were made simpler.
+Extra detailed comments and decorative CSS were reduced.
+No feature was removed.
+
+Main pages still work the same:
+
+Login
+Dashboard
+Books
+Members
+Transactions
+
+
+Note
+
+If database already exists, old migration files will not run again.
+Any new database update should be added as a new migration file.

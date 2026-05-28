@@ -1,0 +1,66 @@
+<div class="page-header">
+  <h4>
+    <i class="bi bi-{{ isEdit ? 'pencil' : 'plus-circle' }} me-2 text-primary"></i>
+    {{ isEdit ? 'Edit Book' : 'Add New Book' }}
+  </h4>
+  <a routerLink="/books" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i>Back to Books
+  </a>
+</div>
+
+<app-spinner *ngIf="loading"></app-spinner>
+<app-alert [message]="errorMsg" type="danger" (dismiss)="errorMsg=null"></app-alert>
+
+<div class="card" *ngIf="!loading">
+  <div class="card-body p-4">
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Title <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" formControlName="title" placeholder="BOOK"
+            [ngClass]="{'is-invalid': f['title'].invalid && f['title'].touched}">
+          <div class="invalid-feedback">Title is required (max 255 chars).</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Author <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" formControlName="author" placeholder="AUTHOR"
+            [ngClass]="{'is-invalid': f['author'].invalid && f['author'].touched}">
+          <div class="invalid-feedback">Author is required.</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">ISBN <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" formControlName="isbn" placeholder="e.g. 978-0132350884"
+            [ngClass]="{'is-invalid': f['isbn'].invalid && f['isbn'].touched}">
+          <div class="invalid-feedback">ISBN is required.</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Category</label>
+          <input type="text" class="form-control" formControlName="category" placeholder="e.g. Software Engineering">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Total Copies <span class="text-danger">*</span></label>
+          <input type="number" class="form-control" formControlName="totalCopies" min="0"
+            [ngClass]="{'is-invalid': f['totalCopies'].invalid && f['totalCopies'].touched}">
+          <div class="invalid-feedback">Must be 0 or greater.</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Available Copies <span class="text-danger">*</span></label>
+          <input type="number" class="form-control" formControlName="availableCopies" min="0"
+            [ngClass]="{'is-invalid': f['availableCopies'].invalid && f['availableCopies'].touched}">
+          <div class="invalid-feedback">Must be 0 or greater.</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Shelf Location</label>
+          <input type="text" class="form-control" formControlName="shelfLocation" placeholder="A-101">
+        </div>
+      </div>
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-primary px-4" [disabled]="submitting">
+          <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
+          {{ isEdit ? 'Update Book' : 'Create Book' }}
+        </button>
+        <a routerLink="/books" class="btn btn-outline-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>

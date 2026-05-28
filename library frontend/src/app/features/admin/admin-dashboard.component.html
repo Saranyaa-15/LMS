@@ -1,0 +1,183 @@
+<div class="fade-in">
+  <div class="dash-header">
+    <div>
+      <div class="dash-greeting">Welcome back, Admin</div>
+      <h4 class="dash-title">
+        <i class="bi bi-shield-lock me-2"></i>Admin Dashboard
+      </h4>
+      <p class="dash-subtitle">Manage library assets, members, transactions, and system users</p>
+    </div>
+    <div class="dash-date">
+      <i class="bi bi-calendar3 me-1"></i>
+      {{ today | date:'EEEE, MMMM d, y' }}
+    </div>
+  </div>
+
+  <app-spinner *ngIf="loading"></app-spinner>
+
+  <div *ngIf="!loading">
+    <div class="row g-4 mb-4">
+      <div class="col-6 col-lg-3">
+        <div class="card stat-card border-primary h-100 fade-in-delay-1">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="stat-value text-primary">{{ totalBooks }}</div>
+                <div class="stat-label mt-1">Total Books</div>
+              </div>
+              <div class="stat-icon stat-icon-primary">
+                <i class="bi bi-journals"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card stat-card border-success h-100 fade-in-delay-2">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="stat-value text-success">{{ availableBooks }}</div>
+                <div class="stat-label mt-1">Available</div>
+              </div>
+              <div class="stat-icon stat-icon-success">
+                <i class="bi bi-book"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card stat-card border-info h-100 fade-in-delay-3">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="stat-value text-info">{{ totalMembers }}</div>
+                <div class="stat-label mt-1">Members</div>
+              </div>
+              <div class="stat-icon stat-icon-info">
+                <i class="bi bi-people"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card stat-card border-warning h-100 fade-in-delay-3">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="stat-value text-warning">{{ activeMembers }}</div>
+                <div class="stat-label mt-1">Active</div>
+              </div>
+              <div class="stat-icon stat-icon-warning">
+                <i class="bi bi-person-check"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="card h-100">
+          <div class="card-header d-flex align-items-center gap-2">
+            <i class="bi bi-grid-fill"></i>Quick Actions
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-6">
+                <a routerLink="/books/new" class="action-card action-primary">
+                  <i class="bi bi-plus-circle"></i>
+                  <span>Add Book</span>
+                </a>
+              </div>
+              <div class="col-6">
+                <a routerLink="/members/new" class="action-card action-success">
+                  <i class="bi bi-person-plus"></i>
+                  <span>Register Member</span>
+                </a>
+              </div>
+              <div class="col-6">
+                <a routerLink="/transactions/issue" class="action-card action-warning">
+                  <i class="bi bi-arrow-left-right"></i>
+                  <span>Issue Book</span>
+                </a>
+              </div>
+              <div class="col-6">
+                <a routerLink="/transactions/return" class="action-card action-info">
+                  <i class="bi bi-arrow-return-left"></i>
+                  <span>Return Book</span>
+                </a>
+              </div>
+            </div>
+            <div class="info-box mt-4">
+              <i class="bi bi-info-circle me-2"></i>
+              <span>Full access: manage resources, users, catalog, and transaction logs.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="card h-100">
+          <div class="card-header d-flex align-items-center gap-2">
+            <i class="bi bi-person-plus-fill text-primary"></i>Register System User
+          </div>
+          <div class="card-body">
+            <app-alert [message]="successMsg" type="success" (dismiss)="successMsg=null"></app-alert>
+            <app-alert [message]="errorMsg" type="danger" (dismiss)="errorMsg=null"></app-alert>
+
+            <form [formGroup]="registerForm" (ngSubmit)="onSubmitUser()">
+              <div class="mb-3">
+                <label for="reg-username" class="form-label">Username</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-person"></i></span>
+                  <input type="text" id="reg-username" class="form-control" formControlName="username" placeholder="name"
+                    [class.is-invalid]="registerForm.get('username')?.touched && registerForm.get('username')?.invalid">
+                  <div class="invalid-feedback">Username required (3+ chars).</div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="reg-email" class="form-label">Email</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                  <input type="email" id="reg-email" class="form-control" formControlName="email" placeholder="example@gmail.com"
+                    [class.is-invalid]="registerForm.get('email')?.touched && registerForm.get('email')?.invalid">
+                  <div class="invalid-feedback">Valid email required.</div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="reg-password" class="form-label">Password</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-key"></i></span>
+                  <input type="password" id="reg-password" class="form-control" formControlName="password" placeholder="password"
+                    [class.is-invalid]="registerForm.get('password')?.touched && registerForm.get('password')?.invalid">
+                  <div class="invalid-feedback">Password required (6+ chars).</div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="reg-role" class="form-label">Role</label>
+                <select id="reg-role" class="form-select" formControlName="role"
+                  [class.is-invalid]="registerForm.get('role')?.touched && registerForm.get('role')?.invalid">
+                  <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+                </select>
+                <div class="invalid-feedback">Role required.</div>
+              </div>
+
+              <button type="submit" class="btn btn-primary w-100 mt-1" [disabled]="registerForm.invalid || submitting">
+                <span *ngIf="submitting" class="spinner-border spinner-border-sm me-1"></span>
+                <i class="bi bi-person-check me-1" *ngIf="!submitting"></i>
+                Register User
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

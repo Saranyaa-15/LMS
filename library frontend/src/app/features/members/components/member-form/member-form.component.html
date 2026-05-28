@@ -1,0 +1,41 @@
+<div class="page-header">
+  <h4>
+    <i class="bi bi-{{ isEdit ? 'pencil' : 'person-plus' }} me-2 text-primary"></i>
+    {{ isEdit ? 'Edit Member' : 'Register Member' }}
+  </h4>
+  <a routerLink="/members" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i>Back to Members
+  </a>
+</div>
+
+<app-spinner *ngIf="loading"></app-spinner>
+<app-alert [message]="errorMsg" type="danger" (dismiss)="errorMsg=null"></app-alert>
+
+<div class="card" *ngIf="!loading" style="max-width:560px">
+  <div class="card-body p-4">
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="mb-3">
+        <label class="form-label">Full Name <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="name" placeholder="name"
+          [ngClass]="{'is-invalid': f['name'].invalid && f['name'].touched}">
+        <div class="invalid-feedback">Full name is required.</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Email Address <span class="text-danger">*</span></label>
+        <input type="email" class="form-control" formControlName="email" placeholder="e.g. name@example.com"
+          [ngClass]="{'is-invalid': f['email'].invalid && f['email'].touched}">
+        <div class="invalid-feedback">
+          <span *ngIf="f['email'].errors?.['required']">Email is required.</span>
+          <span *ngIf="f['email'].errors?.['email']">Enter a valid email address.</span>
+        </div>
+      </div>
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-primary px-4" [disabled]="submitting">
+          <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
+          {{ isEdit ? 'Update Member' : 'Register Member' }}
+        </button>
+        <a routerLink="/members" class="btn btn-outline-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>

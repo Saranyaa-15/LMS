@@ -1,0 +1,106 @@
+<div class="page-header">
+  <h4><i class="bi bi-box-arrow-up-right me-2 text-primary"></i>Issue Book</h4>
+  <div class="d-flex gap-2">
+    <a routerLink="/transactions/return" class="btn btn-outline-success btn-sm">
+      <i class="bi bi-box-arrow-in-left me-1"></i>Return Book
+    </a>
+    <a routerLink="/transactions/history" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-clock-history me-1"></i>History
+    </a>
+  </div>
+</div>
+
+<app-alert [message]="successMsg" type="success" (dismiss)="successMsg=null"></app-alert>
+<app-alert [message]="errorMsg" type="danger" (dismiss)="errorMsg=null"></app-alert>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header">Issue a Book to a Member</div>
+      <div class="card-body p-4">
+        <div *ngIf="loadingData" class="text-center py-3">
+          <div class="spinner-border spinner-border-sm text-primary"></div>
+          <span class="ms-2 text-muted">Loading books and members...</span>
+        </div>
+        <form *ngIf="!loadingData" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <div class="mb-4">
+            <label class="form-label">Select Book <span class="text-danger">*</span></label>
+            <select class="form-select" formControlName="bookId"
+              [ngClass]="{'is-invalid': f['bookId'].invalid && f['bookId'].touched}">
+              <option [value]="null" disabled selected>-- Choose a book --</option>
+              <option *ngFor="let b of books" [value]="b.id">
+                {{ b.title }} by {{ b.author }} ({{ b.availableCopies }} available)
+              </option>
+            </select>
+            <div class="invalid-feedback">Please select a book.</div>
+            <div *ngIf="books.length === 0" class="form-text text-warning">
+              <i class="bi bi-exclamation-triangle me-1"></i>No books currently available.
+            </div>
+          </div>
+
+          <div *ngIf="selectedBook()" class="alert alert-light border mb-4 p-3">
+            <div class="fw-semibold">{{ selectedBook()?.title }}</div>
+            <div class="small text-muted">{{ selectedBook()?.author }} &bull; {{ selectedBook()?.isbn }}</div>
+            <div class="small mt-1">
+              <span class="badge bg-success">{{ selectedBook()?.availableCopies }} copies available</span>
+              <span class="ms-2 text-muted">Location: {{ selectedBook()?.shelfLocation || 'N/A' }}</span>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">Select Member <span class="text-danger">*</span></label>
+            <select class="form-select" formControlName="memberId"
+              [ngClass]="{'is-invalid': f['memberId'].invalid && f['memberId'].touched}">
+              <option [value]="null" disabled selected>-- Choose a member --</option>
+              <option *ngFor="let m of members" [value]="m.id">{{ m.name }} ({{ m.email }})</option>
+            </select>
+            <div class="invalid-feedback">Please select a member.</div>
+            <div *ngIf="members.length === 0" class="form-text text-warning">
+              <i class="bi bi-exclamation-triangle me-1"></i>No active members found.
+            </div>
+          </div>
+
+          <div *ngIf="selectedMember()" class="alert alert-light border mb-4 p-3">
+            <div class="fw-semibold">{{ selectedMember()?.name }}</div>
+            <div class="small text-muted">{{ selectedMember()?.email }}</div>
+          </div>
+
+          <div class="alert alert-info small mb-4">
+            <i class="bi bi-info-circle me-1"></i>
+            Due date will be set to <strong>14 days</strong> from today.
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100" [disabled]="submitting || loadingData">
+            <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
+            <i *ngIf="!submitting" class="bi bi-box-arrow-up-right me-2"></i>
+            Issue Book
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6" *ngIf="lastTransaction">
+    <div class="card border-success">
+      <div class="card-header bg-success text-white">
+        <i class="bi bi-check-circle me-2"></i>Last Issued
+      </div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-5 text-muted">Book</dt>
+          <dd class="col-7 fw-semibold">{{ lastTransaction.bookTitle }}</dd>
+          <dt class="col-5 text-muted">ISBN</dt>
+          <dd class="col-7"><code>{{ lastTransaction.bookIsbn }}</code></dd>
+          <dt class="col-5 text-muted">Member</dt>
+          <dd class="col-7">{{ lastTransaction.memberName }}</dd>
+          <dt class="col-5 text-muted">Issued At</dt>
+          <dd class="col-7">{{ lastTransaction.issuedAt | date:'medium' }}</dd>
+          <dt class="col-5 text-muted">Due Date</dt>
+          <dd class="col-7 fw-bold text-danger">{{ lastTransaction.dueDate | date:'mediumDate' }}</dd>
+          <dt class="col-5 text-muted">Status</dt>
+          <dd class="col-7"><span class="badge bg-primary">{{ lastTransaction.status }}</span></dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>

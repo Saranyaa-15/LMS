@@ -1,0 +1,85 @@
+<div class="page-header">
+  <h4><i class="bi bi-journals me-2 text-primary"></i>Books</h4>
+  <a routerLink="/books/new" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i>Add Book
+  </a>
+</div>
+
+<app-alert [message]="successMsg" type="success" (dismiss)="successMsg=null"></app-alert>
+<app-alert [message]="errorMsg" type="danger" (dismiss)="errorMsg=null"></app-alert>
+
+<div class="card">
+  <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <span>All Books <span class="badge bg-secondary ms-1">{{ books.length }}</span></span>
+    <div class="search-bar">
+      <div class="input-group">
+        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+        <input type="text" class="form-control border-start-0 ps-0" placeholder="Search title, author, ISBN..."
+          [(ngModel)]="searchQuery" (ngModelChange)="onSearch()">
+      </div>
+    </div>
+  </div>
+  <div class="card-body p-0">
+    <app-spinner *ngIf="loading"></app-spinner>
+    <div *ngIf="!loading && books.length === 0" class="empty-state">
+      <i class="bi bi-journals"></i>
+      <p class="mb-0">No books found. <a routerLink="/books/new">Add your first book</a>.</p>
+    </div>
+    <div class="table-responsive" *ngIf="!loading && books.length > 0">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>ISBN</th>
+            <th>Category</th>
+            <th class="text-center">Total</th>
+            <th class="text-center">Available</th>
+            <th>Location</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let book of books">
+            <td class="fw-semibold">
+              <a [routerLink]="['/books', book.id]" class="text-decoration-none">{{ book.title }}</a>
+            </td>
+            <td>{{ book.author }}</td>
+            <td><code class="text-muted small">{{ book.isbn }}</code></td>
+            <td>
+              <span *ngIf="book.category" class="badge bg-light text-dark border">{{ book.category }}</span>
+              <span *ngIf="!book.category" class="text-muted small">—</span>
+            </td>
+            <td class="text-center">{{ book.totalCopies }}</td>
+            <td class="text-center">
+              <span class="badge" [ngClass]="book.availableCopies > 0 ? 'bg-success' : 'bg-danger'">
+                {{ book.availableCopies }}
+              </span>
+            </td>
+            <td class="text-muted small">{{ book.shelfLocation || '—' }}</td>
+            <td class="text-center">
+              <a [routerLink]="['/books', book.id]" class="btn btn-sm btn-outline-info me-1" title="View">
+                <i class="bi bi-eye"></i>
+              </a>
+              <a [routerLink]="['/books', book.id, 'edit']" class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete(book)" title="Delete">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<app-confirm-modal
+  [visible]="showConfirm"
+  title="Delete Book"
+  [message]="'Are you sure you want to delete &quot;' + bookToDelete?.title + '&quot;? This action cannot be undone.'"
+  confirmLabel="Delete"
+  (confirm)="deleteBook()"
+  (cancel)="showConfirm=false">
+</app-confirm-modal>

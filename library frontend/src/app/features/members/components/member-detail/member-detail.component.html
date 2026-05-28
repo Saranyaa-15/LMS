@@ -1,0 +1,105 @@
+<div class="page-header">
+  <h4><i class="bi bi-person me-2 text-primary"></i>Member Detail</h4>
+  <div class="d-flex gap-2">
+    <a [routerLink]="['/members', member.id, 'edit']" class="btn btn-outline-primary btn-sm" *ngIf="member">
+      <i class="bi bi-pencil me-1"></i>Edit
+    </a>
+    <a routerLink="/members" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left me-1"></i>Back
+    </a>
+  </div>
+</div>
+
+<app-spinner *ngIf="loading"></app-spinner>
+<app-alert [message]="errorMsg" type="danger" (dismiss)="errorMsg=null"></app-alert>
+
+<div *ngIf="member && !loading">
+  <div class="row g-4 mb-4">
+    <div class="col-md-5">
+      <div class="card h-100">
+        <div class="card-body text-center p-4">
+          <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+            style="width:80px;height:80px">
+            <i class="bi bi-person text-primary" style="font-size:2.2rem"></i>
+          </div>
+          <h5 class="fw-bold mb-1">{{ member.name }}</h5>
+          <p class="text-muted mb-2">{{ member.email }}</p>
+          <span class="badge fs-6" [ngClass]="member.status === 'ACTIVE' ? 'bg-success' : 'bg-secondary'">
+            {{ member.status }}
+          </span>
+          <div class="text-muted small mt-3">
+            <i class="bi bi-calendar3 me-1"></i>Registered {{ member.createdAt | date:'mediumDate' }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-7">
+      <div class="card h-100">
+        <div class="card-header">Issue Summary</div>
+        <div class="card-body d-flex align-items-center">
+          <div class="row text-center g-3 w-100">
+            <div class="col-4">
+              <div class="fw-bold fs-3 text-primary">{{ transactions.length }}</div>
+              <div class="text-muted small">Total Issues</div>
+            </div>
+            <div class="col-4">
+              <div class="fw-bold fs-3 text-success">{{ returnedCount }}</div>
+              <div class="text-muted small">Returned</div>
+            </div>
+            <div class="col-4">
+              <div class="fw-bold fs-3 text-danger">{{ overdueCount }}</div>
+              <div class="text-muted small">Overdue</div>
+            </div>
+            <div class="col-12 mt-2">
+              <div class="alert alert-light border mb-0 text-center py-2">
+                <span class="fw-semibold text-warning">{{ activeCount }}</span>
+                <span class="text-muted small ms-1">currently issued</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      Transaction History
+      <span class="badge bg-secondary ms-1">{{ transactions.length }}</span>
+    </div>
+    <div class="card-body p-0">
+      <div *ngIf="transactions.length === 0" class="empty-state">
+        <i class="bi bi-clock-history"></i>
+        <p class="mb-0">No transactions for this member yet.</p>
+      </div>
+      <div class="table-responsive" *ngIf="transactions.length > 0">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Book</th>
+              <th>Issued At</th>
+              <th>Due Date</th>
+              <th>Returned At</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of transactions" [ngClass]="{'table-danger': t.status === 'OVERDUE'}">
+              <td class="fw-semibold">
+                <a [routerLink]="['/books', t.bookId]" class="text-decoration-none">{{ t.bookTitle }}</a>
+                <div class="text-muted small"><code>{{ t.bookIsbn }}</code></div>
+              </td>
+              <td>{{ t.issuedAt | date:'mediumDate' }}</td>
+              <td [ngClass]="{'text-danger fw-semibold': isOverdue(t)}">
+                {{ t.dueDate | date:'mediumDate' }}
+                <i *ngIf="isOverdue(t)" class="bi bi-exclamation-triangle ms-1"></i>
+              </td>
+              <td>{{ t.returnedAt ? (t.returnedAt | date:'mediumDate') : '—' }}</td>
+              <td><span class="badge" [ngClass]="statusClass(t.status)">{{ t.status }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,64 @@
+<div class="fade-in">
+  <div class="page-header d-flex flex-column align-items-start gap-1">
+    <h4><i class="bi bi-book-half me-2 text-primary"></i>Library Catalog</h4>
+    <p class="text-muted mb-0 small">Welcome! Browse available books in the library catalog.</p>
+  </div>
+
+  <div class="card mb-4 bg-light border-0">
+    <div class="card-body py-4">
+      <h5 class="fw-bold mb-3"><i class="bi bi-search me-2 text-primary"></i>Search the Catalog</h5>
+      <div class="input-group input-group-lg bg-white rounded shadow-sm border">
+        <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
+        <input type="text" class="form-control border-0 ps-0" placeholder="Search by title, author, category, or ISBN..."
+          [(ngModel)]="searchQuery" (ngModelChange)="onSearch()">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span>Catalog Listing <span class="badge bg-secondary ms-1">{{ books.length }}</span></span>
+      <button class="btn btn-sm btn-outline-secondary" (click)="loadBooks()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
+    </div>
+    <div class="card-body p-0">
+      <app-spinner *ngIf="loading"></app-spinner>
+      
+      <div *ngIf="!loading && books.length === 0" class="empty-state">
+        <i class="bi bi-journal-x"></i>
+        <p class="mb-0">No books found in the catalog matching your search criteria.</p>
+      </div>
+
+      <div class="table-responsive" *ngIf="!loading && books.length > 0">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Author</th>
+              <th>ISBN</th>
+              <th>Category</th>
+              <th>Shelf Location</th>
+              <th class="text-center">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let book of books">
+              <td class="fw-semibold">{{ book.title }}</td>
+              <td>{{ book.author }}</td>
+              <td><code class="text-muted small">{{ book.isbn }}</code></td>
+              <td>
+                <span *ngIf="book.category" class="badge bg-light text-dark border">{{ book.category }}</span>
+                <span *ngIf="!book.category" class="text-muted small">—</span>
+              </td>
+              <td class="text-muted small">{{ book.shelfLocation || '—' }}</td>
+              <td class="text-center">
+                <span class="badge" [ngClass]="book.availableCopies > 0 ? 'bg-success' : 'bg-danger'">
+                  {{ book.availableCopies > 0 ? 'Available' : 'Issued Out' }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

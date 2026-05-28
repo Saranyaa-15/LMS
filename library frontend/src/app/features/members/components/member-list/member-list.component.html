@@ -1,0 +1,84 @@
+<div class="page-header">
+  <h4><i class="bi bi-people me-2 text-primary"></i>Members</h4>
+  <a routerLink="/members/new" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i>Add Member
+  </a>
+</div>
+
+<app-alert [message]="successMsg" type="success" (dismiss)="successMsg=null"></app-alert>
+<app-alert [message]="errorMsg" type="danger" (dismiss)="errorMsg=null"></app-alert>
+
+<div class="card">
+  <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <span>All Members <span class="badge bg-secondary ms-1">{{ members.length }}</span></span>
+    <div class="search-bar">
+      <div class="input-group">
+        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+        <input type="text" class="form-control border-start-0 ps-0" placeholder="Search name, email..."
+          [(ngModel)]="searchQuery" (ngModelChange)="applyFilter()">
+      </div>
+    </div>
+  </div>
+  <div class="card-body p-0">
+    <app-spinner *ngIf="loading"></app-spinner>
+    <div *ngIf="!loading && filtered.length === 0" class="empty-state">
+      <i class="bi bi-people"></i>
+      <p class="mb-0">No members found. <a routerLink="/members/new">Register your first member</a>.</p>
+    </div>
+    <div class="table-responsive" *ngIf="!loading && filtered.length > 0">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Registered</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let m of filtered; let i = index">
+            <td class="text-muted small">{{ i + 1 }}</td>
+            <td class="fw-semibold">
+              <a [routerLink]="['/members', m.id]" class="text-decoration-none">{{ m.name }}</a>
+            </td>
+            <td class="text-muted">{{ m.email }}</td>
+            <td>
+              <span class="badge" [ngClass]="m.status === 'ACTIVE' ? 'bg-success' : 'bg-secondary'">
+                {{ m.status }}
+              </span>
+            </td>
+            <td class="text-muted small">{{ m.createdAt | date:'mediumDate' }}</td>
+            <td class="text-center">
+              <a [routerLink]="['/members', m.id]" class="btn btn-sm btn-outline-info me-1" title="View">
+                <i class="bi bi-eye"></i>
+              </a>
+              <a [routerLink]="['/members', m.id, 'edit']" class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <button class="btn btn-sm btn-outline-warning" *ngIf="m.status === 'ACTIVE'"
+                (click)="confirmDeactivate(m)" [disabled]="actionLoadingId === m.id" title="Deactivate">
+                <i class="bi bi-person-x"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-success" *ngIf="m.status === 'INACTIVE'"
+                (click)="activate(m)" [disabled]="actionLoadingId === m.id" title="Activate">
+                <span *ngIf="actionLoadingId === m.id" class="spinner-border spinner-border-sm"></span>
+                <i *ngIf="actionLoadingId !== m.id" class="bi bi-person-check"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<app-confirm-modal
+  [visible]="showConfirm"
+  title="Deactivate Member"
+  [message]="'Are you sure you want to deactivate ' + memberToDeactivate?.name + '?'"
+  confirmLabel="Deactivate"
+  (confirm)="deactivate()"
+  (cancel)="showConfirm=false">
+</app-confirm-modal>

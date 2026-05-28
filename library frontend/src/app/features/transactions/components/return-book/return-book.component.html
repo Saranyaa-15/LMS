@@ -1,0 +1,96 @@
+<div class="page-header">
+  <h4><i class="bi bi-box-arrow-in-left me-2 text-success"></i>Return Book</h4>
+  <div class="d-flex gap-2">
+    <a routerLink="/transactions/issue" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-box-arrow-up-right me-1"></i>Issue Book
+    </a>
+    <a routerLink="/transactions/history" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-clock-history me-1"></i>History
+    </a>
+  </div>
+</div>
+
+<app-alert [message]="successMsg" type="success" (dismiss)="successMsg=null"></app-alert>
+<app-alert [message]="errorMsg" type="danger" (dismiss)="errorMsg=null"></app-alert>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header">Process a Return</div>
+      <div class="card-body p-4">
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <div class="mb-4">
+            <label class="form-label">Select Member <span class="text-danger">*</span></label>
+            <select class="form-select" formControlName="memberId"
+              [ngClass]="{'is-invalid': f['memberId'].invalid && f['memberId'].touched}">
+              <option [value]="null" disabled selected>-- Choose a member --</option>
+              <option *ngFor="let m of members" [value]="m.id">{{ m.name }} ({{ m.email }})</option>
+            </select>
+            <div class="invalid-feedback">Please select a member.</div>
+          </div>
+
+          <div class="mb-4" *ngIf="form.value.memberId">
+            <label class="form-label">Select Book to Return <span class="text-danger">*</span></label>
+            <div *ngIf="loadingTxns" class="text-muted small py-2">
+              <span class="spinner-border spinner-border-sm me-2"></span>Loading issued books...
+            </div>
+            <select class="form-select" formControlName="transactionId" *ngIf="!loadingTxns"
+              [ngClass]="{'is-invalid': f['transactionId'].invalid && f['transactionId'].touched}">
+              <option [value]="null" disabled selected>-- Choose a book to return --</option>
+              <option *ngFor="let t of activeTransactions" [value]="t.id">
+                {{ t.bookTitle }} — Due: {{ t.dueDate | date:'mediumDate' }}
+                {{ isOverdue(t) ? ' ⚠ OVERDUE' : '' }}
+              </option>
+            </select>
+            <div *ngIf="!loadingTxns && activeTransactions.length === 0" class="form-text text-muted">
+              <i class="bi bi-info-circle me-1"></i>No active issues for this member.
+            </div>
+            <div class="invalid-feedback">Please select a transaction.</div>
+          </div>
+
+          <div *ngIf="selectedTransaction()" class="mb-4">
+            <div class="alert p-3" [ngClass]="isOverdue(selectedTransaction()!) ? 'alert-danger' : 'alert-light border'">
+              <div class="fw-semibold">{{ selectedTransaction()?.bookTitle }}</div>
+              <div class="small text-muted">ISBN: {{ selectedTransaction()?.bookIsbn }}</div>
+              <div class="small mt-1">
+                Issued: {{ selectedTransaction()?.issuedAt | date:'mediumDate' }} &bull;
+                Due: <span [ngClass]="isOverdue(selectedTransaction()!) ? 'text-danger fw-bold' : ''">
+                  {{ selectedTransaction()?.dueDate | date:'mediumDate' }}
+                </span>
+              </div>
+              <div *ngIf="isOverdue(selectedTransaction()!)" class="mt-1 fw-semibold">
+                <i class="bi bi-exclamation-triangle me-1"></i>This book is overdue!
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-success w-100" [disabled]="submitting">
+            <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
+            <i *ngIf="!submitting" class="bi bi-box-arrow-in-left me-2"></i>
+            Return Book
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6" *ngIf="lastReturned">
+    <div class="card border-success">
+      <div class="card-header bg-success text-white">
+        <i class="bi bi-check-circle me-2"></i>Successfully Returned
+      </div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-5 text-muted">Book</dt>
+          <dd class="col-7 fw-semibold">{{ lastReturned.bookTitle }}</dd>
+          <dt class="col-5 text-muted">Returned By</dt>
+          <dd class="col-7">{{ lastReturned.memberName }}</dd>
+          <dt class="col-5 text-muted">Returned At</dt>
+          <dd class="col-7">{{ lastReturned.returnedAt | date:'medium' }}</dd>
+          <dt class="col-5 text-muted">Status</dt>
+          <dd class="col-7"><span class="badge bg-success">{{ lastReturned.status }}</span></dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>

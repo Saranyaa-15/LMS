@@ -1,0 +1,61 @@
+<nav class="side-nav" *ngIf="isAuthenticated()">
+  <div class="nav-wrap">
+    <div class="nav-header">
+      <a class="nav-brand" [routerLink]="getDashboardLink()">
+        <div class="brand-icon">
+          <i class="bi bi-book-half"></i>
+        </div>
+        <span class="brand-text">LibraryMS</span>
+      </a>
+
+      <button class="nav-toggle" (click)="navOpen = !navOpen" [class.active]="navOpen" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+
+    <div class="role-label" *ngIf="getRole()">
+      <i class="bi bi-person-badge-fill"></i>
+      <span>{{ getRole() }}</span>
+    </div>
+
+    <div class="nav-menu" [class.open]="navOpen">
+      <div class="nav-links">
+        <a class="nav-link" [routerLink]="getDashboardLink()" routerLinkActive="active"
+           [routerLinkActiveOptions]="{exact: false}" (click)="navOpen=false">
+          <i class="bi bi-speedometer2"></i>
+          <span>Dashboard</span>
+        </a>
+        <a class="nav-link" *ngIf="getRole() === 'ADMIN' || getRole() === 'LIBRARIAN'"
+           routerLink="/books" routerLinkActive="active" (click)="navOpen=false">
+          <i class="bi bi-journals"></i>
+          <span>Books</span>
+        </a>
+        <a class="nav-link" *ngIf="getRole() === 'ADMIN' || getRole() === 'LIBRARIAN'"
+           routerLink="/members" routerLinkActive="active" (click)="navOpen=false">
+          <i class="bi bi-people"></i>
+          <span>Members</span>
+        </a>
+        <a class="nav-link" *ngIf="getRole() === 'ADMIN' || getRole() === 'LIBRARIAN'"
+           routerLink="/transactions" routerLinkActive="active" (click)="navOpen=false">
+          <i class="bi bi-arrow-left-right"></i>
+          <span>Transactions</span>
+        </a>
+      </div>
+
+      <div class="nav-user">
+        <button class="nav-logout" (click)="logout()">
+          <i class="bi bi-box-arrow-right"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="page-main" [class.with-nav]="isAuthenticated()">
+  <div class="container">
+    <router-outlet></router-outlet>
+  </div>
+</main>
